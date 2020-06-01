@@ -68,4 +68,21 @@ User.prototype.register = function() {
     })
 }
 
+User.prototype.login = function() {
+    return new Promise((resolve, reject) => {
+        this.cleanUp();
+        userCollection.findOne({username: this.data.username}).then((attemptedUser) => {
+        if (attemptedUser && bcrypt.compareSync(this.data.password, attemptedUser.password)) {
+            this.data = attemptedUser
+            resolve("Congrats");
+        }
+        else {
+            reject('Invalid username / password ')
+        }
+    }).catch(function() {
+        reject("Please try again later")
+    })
+    })    
+}
+
 module.exports = User

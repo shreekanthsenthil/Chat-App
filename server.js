@@ -33,7 +33,7 @@ server.use(function(req, res, next) {
     if(req.session.user) {
         req.userId = req.session.user._id
     } else {
-        req.userId = req.visitorId = 0
+        req.userId = 0
     }
 
     //make user session data from within view templates
@@ -44,5 +44,6 @@ server.use(function(req, res, next) {
 server.get('/', userController.home)
 server.get('/register', userController.registerPage)
 server.post('/register', userController.register)
+server.post('/login', userController.login)
 
 module.exports = server
