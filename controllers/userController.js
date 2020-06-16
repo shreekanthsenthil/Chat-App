@@ -2,7 +2,7 @@ let User = require('../models/User')
 
 exports.home = function(req, res) {
     if(req.session.user) {
-        res.send(`Logged in as ${req.session.user.username}`)
+        res.render('chat')
     } else {
         res.render('login')
     }
@@ -42,5 +42,23 @@ exports.login = function(req, res) {
         req.session.save(function() {
             res.redirect('/')
         })
+    })
+}
+
+exports.mustBeLoggedIn = function(req, res, next) {
+    if (req.session.user) {
+        next()
+    }
+    else {
+        req.flash("errors", "You must be Logged in to perform that action")
+        req.session.save(function() {
+            res.redirect('/')
+        })
+    }
+}
+
+exports.logout = function(req, res) {
+    req.session.destroy(function() {
+        res.redirect("/")
     })
 }
