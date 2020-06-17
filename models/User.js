@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs')
 const userCollection = require('../db').db().collection("users")
+let connectCollection = require('../db').db().collection("connect")
 const validator = require('validator')
 
 let User = function(data) {
@@ -59,7 +60,9 @@ User.prototype.register = function() {
             // hash password
             let salt = bcrypt.genSaltSync(10);
             this.data.password = bcrypt.hashSync(this.data.password, salt)
-            await userCollection.insertOne(this.data)
+            let user = await userCollection.insertOne(this.data)
+
+            await connectCollection.insertOne({userId: user.insertedId, connections: []})
             resolve();
         }
         else{

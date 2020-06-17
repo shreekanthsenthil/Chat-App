@@ -51,6 +51,12 @@ server.post('/register', userController.register)
 server.post('/login', userController.login)
 server.post('/logout', userController.logout)
 server.get('/connect', userController.mustBeLoggedIn, connectController.connectPage)
+server.post('/search', userController.mustBeLoggedIn, connectController.search)
+server.post('/connect/:id', userController.mustBeLoggedIn, connectController.connect)
+server.get('/404', (req,res) => {
+    res.send('Error Page Not Found')
+})
+
 
 io.use(function(socket, next) {
     sessionOptions(socket.request, socket.request.res, next)
