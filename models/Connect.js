@@ -35,7 +35,6 @@ Connect.prototype.validate = async function() {
             return true
         }
     })
-    console.log(present)
     if(present){
         this.errors.push('Connection already exist')
     }
@@ -105,6 +104,14 @@ Connect.search = function(searchTerm, userId) {
         } else {
             reject()
         }
+    })
+}
+
+Connect.getConnectionsId = function(userId) {
+    return new Promise(async (resolve, reject) => {
+        let userDoc = await connectCollection.findOne({userId: new ObjectID(userId)})
+        let ConnectionsId = userDoc.connections
+        resolve(ConnectionsId)
     })
 }
 

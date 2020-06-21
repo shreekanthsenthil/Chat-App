@@ -2,7 +2,15 @@ let User = require('../models/User')
 
 exports.home = function(req, res) {
     if(req.session.user) {
-        res.render('chat')
+        User.getConnections(req.userId).then((connections) => {
+            if(connections.length){
+                res.render('chat', {connections: connections})
+            } else {
+                res.redirect('/connect')
+            }
+        }).catch(() => {
+            res.redirect('/404')
+        })
     } else {
         res.render('login')
     }
@@ -10,7 +18,7 @@ exports.home = function(req, res) {
 
 exports.registerPage = function(req, res) {
     if(req.session.user) {
-        res.send(`Logged in as ${req.session.user.username}`)
+        res.redirect('/')
     } else {
         res.render('register')
     }

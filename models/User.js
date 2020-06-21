@@ -2,6 +2,8 @@ const bcrypt = require('bcryptjs')
 const userCollection = require('../db').db().collection("users")
 let connectCollection = require('../db').db().collection("connect")
 const validator = require('validator')
+let Connect = require('./Connect')
+const { ObjectID } = require('mongodb')
 
 let User = function(data) {
     this.data = data   
@@ -86,6 +88,16 @@ User.prototype.login = function() {
         reject("Please try again later")
     })
     })    
+}
+
+User.getConnections = function(userId){
+    return new Promise(async (resolve, reject) => {
+        let connectionsId = await Connect.getConnectionsId(userId)
+        let connections = await Promise.all(connectionsId.map((connectId) => {
+            return userCollection.findOne({_id: new ObjectID(connectId)}, {projection: {password: 0}})
+        }))
+        resolve(connections)
+    })
 }
 
 module.exports = User
