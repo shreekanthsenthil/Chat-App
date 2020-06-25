@@ -9,6 +9,7 @@ export default class Chat {
         this.chatArea = document.querySelector('.chat-box')
         this.typingArea = document.querySelector('.message-field')
         this.sendButton = document.querySelector('.send-button')
+        this.userList = document.querySelector('.user-list')
         this.renderChatBox(this.activeChat.dataset.id)
         this.SocketConnection()
         this.events()
@@ -76,6 +77,9 @@ export default class Chat {
         this.socket.on('newMessageFromServer', (data) => {
             this.receiveMessage(data)
         })
+        this.socket.on('newConnection', data => {
+            this.newConnection(data)
+        })
     }
 
     sendMessage() {
@@ -95,6 +99,20 @@ export default class Chat {
             this.makeActive(data.fromUserId)
             this.renderChatBox(data.fromUserId)
         }
+    }
+
+    newConnection(data) {
+        this.userList.innerHTML += `
+        <button class="list-group-item list-group-item-action list-group-item-light rounded-0" data-id="${data.id}">
+            <div class="media"><img src="https://res.cloudinary.com/mhmd/image/upload/v1564960395/avatar_usae7z.svg" alt="user" width="50" class="rounded-circle">
+                <div class="media-body ml-4 mt-2">
+                    <div class="align-items-center justify-content-between">
+                        <h5 class="mb-0"> ${data.username} </h5>
+                    </div>
+                </div>
+            </div>
+        </button>
+        `
     }
 
     renderConnectorMessage(message, time) {

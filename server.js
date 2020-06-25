@@ -53,7 +53,10 @@ server.post('/login', userController.login)
 server.post('/logout', userController.logout)
 server.get('/connect', userController.mustBeLoggedIn, connectController.connectPage)
 server.post('/search', userController.mustBeLoggedIn, connectController.search)
-server.post('/connect/:id', userController.mustBeLoggedIn, connectController.connect)
+server.post('/connect/:id', userController.mustBeLoggedIn, connectController.connect, (req, res) => {
+    io.sockets.in(req.params.id).emit('newConnection', {username: req.session.user.username, id: req.userId})
+    res.redirect('/')
+})
 server.post('/getMessages', userController.mustBeLoggedIn, chatController.getMessages)
 server.get('/404', (req,res) => {
     res.send('Error Page Not Found')
@@ -71,16 +74,13 @@ io.on('connection', (socket) => {
 
     socket.on('join', (data) => {
         socket.join(data.id)
-        console.log(data.id)
     })
 
     socket.on('newMessageFromBrowser', (data) => {
         io.sockets.in(data.toUserId).emit('newMessageFromServer', {message: data.message, time: data.time, fromUserId: user._id})
-        console.log(data)
         chatController.newMessage(user._id, data.toUserId, data.message, data.time)
     })
    }
 })
 
-
-module.exports = chatServer
+module.exports = {chatServer: chatServer, socketio: io.sockets}
