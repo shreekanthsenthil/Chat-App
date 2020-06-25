@@ -53,7 +53,6 @@ User.prototype.cleanUp = function() {
 User.prototype.register = function() {
     return new Promise(async (resolve, reject) => {
         //Validate Data
-        console.log(this.data)
         this.cleanUp()
         await this.validate()
     
