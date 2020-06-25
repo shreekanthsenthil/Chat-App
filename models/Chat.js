@@ -1,6 +1,9 @@
 const userCollection = require('../db').db().collection("users")
 const chatCollection = require('../db').db().collection("chat")
 const { ObjectID } = require('mongodb') 
+const CryptoJS = require('crypto-js')
+const dotenv = require('dotenv')
+dotenv.config()
 
 let Chat = function(from, to, message, time) {
     this.data = {}
@@ -19,7 +22,6 @@ Chat.prototype.validate = function() {
         if(this.data.time == "") { this.errors.push('Invalid Time') }
 
         if(!this.errors.length){
-            console.log('Checking')
             let fromUser = await userCollection.findOne({_id: new ObjectID(this.data.from)})
             let toUser = await userCollection.findOne({_id: new ObjectID(this.data.to)})
             if(!fromUser || !toUser) {
@@ -38,25 +40,24 @@ Chat.prototype.cleanUp = function() {
     if(typeof(this.data.message) != 'string') { this.data.message = "" }
 }
 
+Chat.decryptMessage = function(messages) {
+    messages = messages.map(messageDOC => {
+        let bytes  = CryptoJS.AES.decrypt(messageDOC.message, process.env.CRYPTOKEY);
+        messageDOC.message = bytes.toString(CryptoJS.enc.Utf8);
+        return messageDOC
+    })
+    return messages
+}
+
 Chat.prototype.newMessage = function() {
     return new Promise(async (resolve, reject) => {
-        console.log("11")
         this.cleanUp()
-        console.log('2')
         this.validate()
-        console.log(this.errors)
         if(!this.errors.length){
-            try{
-                console.log('Inserting')
-                this.encrypt()
-                await chatCollection.insertOne(this.data) 
-                resolve()
-            } catch(e) {
-                console.log(e)
-                reject()
-            }
+            this.data.message = CryptoJS.AES.encrypt(this.data.message, process.env.CRYPTOKEY).toString();
+            await chatCollection.insertOne(this.data) 
+            resolve()
         } else {
-            console.log("ERROR")
             reject()
         }
     })
@@ -73,6 +74,7 @@ Chat.getMessages = function(userId, connectId) {
                     { $and : [{from: connectId}, {to: userId}]}
                 ]
             }).sort({time: 1}).toArray()
+            messages = this.decryptMessage(messages)
             resolve(messages)
         }
     })
