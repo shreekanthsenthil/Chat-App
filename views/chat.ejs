@@ -6,6 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Chat App</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css">
+<link rel="icon" type="image/png" href="./favicon.png"/>
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script> 
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -16,7 +17,7 @@
         
         <header class="text-center">
           <h1 class="display-4 text-white">Chat App</h1>
-          <p class="text-white lead mb-0">Hey, <%= username %> </p>
+          <p class="text-white lead mb-1">Hey, <%= username %> </p>
         </header>
       
         <div class="row rounded-lg overflow-hidden shadow">
@@ -86,7 +87,11 @@
       
           </div>
         </div>
+        <footer class="border-top text-center text-white py-3">
+          <p class="m-1">Made with &#10084;&#65039; by <a href="https://github.com/shreekanthsenthil" class="text-white font-weight-bold">Shreekanth</a>.</p>
+        </footer>
       </div> 
+      
       <script src="/socket.io/socket.io.js"></script>
       <script src="./main-bundled.js"></script>
 </body>
