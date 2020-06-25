@@ -4,7 +4,7 @@ exports.home = function(req, res) {
     if(req.session.user) {
         User.getConnections(req.userId).then((connections) => {
             if(connections.length){
-                res.render('chat', {connections: connections})
+                res.render('chat', {connections: connections, username: req.session.user.username, userId: req.userId})
             } else {
                 res.redirect('/connect')
             }

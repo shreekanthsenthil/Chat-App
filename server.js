@@ -4,6 +4,7 @@ const MongoStore = require('connect-mongo')(session)
 const flash = require('connect-flash')
 const userController = require('./controllers/userController')
 const connectController = require('./controllers/connectController')
+const chatController = require('./controllers/chatController')
 
 const server = express()
 
@@ -53,6 +54,7 @@ server.post('/logout', userController.logout)
 server.get('/connect', userController.mustBeLoggedIn, connectController.connectPage)
 server.post('/search', userController.mustBeLoggedIn, connectController.search)
 server.post('/connect/:id', userController.mustBeLoggedIn, connectController.connect)
+server.post('/getMessages', userController.mustBeLoggedIn, chatController.getMessages)
 server.get('/404', (req,res) => {
     res.send('Error Page Not Found')
 })
@@ -65,11 +67,17 @@ io.use(function(socket, next) {
 io.on('connection', (socket) => {
    if(socket.request.session.user) {
     let user = socket.request.session.user
+    socket.emit('welcome', {userId: user._id})
 
-    socket.emit('welcome', {username: user.username})
+    socket.on('join', (data) => {
+        socket.join(data.id)
+        console.log(data.id)
+    })
 
-    socket.on('chatMessageFromBrowser', function(data) {
-        socket.broadcast.emit('chatMessageFromServer', {message: data.message, fromUsername: user.username, toUsername: data.toUsername})
+    socket.on('newMessageFromBrowser', (data) => {
+        io.sockets.in(data.toUserId).emit('newMessageFromServer', {message: data.message, time: data.time, fromUserId: user._id})
+        console.log(data)
+        chatController.newMessage(user._id, data.toUserId, data.message, data.time)
     })
    }
 })
